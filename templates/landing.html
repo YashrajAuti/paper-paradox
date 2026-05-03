@@ -73,6 +73,57 @@
       animation: slideDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
+    /* ── Hamburger ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      z-index: 110;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px; height: 2px;
+      background: var(--green-accent);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* ── Mobile Nav Drawer ── */
+    .mobile-nav-drawer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(7, 13, 8, 0.97);
+      backdrop-filter: blur(20px);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .mobile-nav-drawer.open {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-nav-drawer .btn {
+      width: 220px;
+      justify-content: center;
+      font-size: 1rem;
+      padding: 14px 24px;
+    }
+
 
     @keyframes slideDown {
       from { opacity: 0; transform: translateY(-20px); }
@@ -808,22 +859,65 @@
     }
 
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      .navbar { padding: 16px 24px; }
-      .section { padding: 70px 24px; }
-      .stats-section { padding: 60px 24px; }
-      .stats-inner { padding: 48px 28px; }
-      .cta-section { padding: 80px 24px; }
-      .cta-inner { padding: 52px 28px; }
-      footer { padding: 24px 24px; }
-      .steps-row::before { display: none; }
+    /* ══ RESPONSIVE ══ */
+
+    /* ── Tablet: 481px – 900px ── */
+    @media (max-width: 900px) {
+      .navbar { padding: 16px 32px; }
+      .section { padding: 80px 32px; }
+      .stats-section { padding: 60px 32px; }
+      .stats-inner { padding: 48px 32px; }
+      .cta-section { padding: 80px 32px; }
+      .cta-inner { padding: 56px 40px; }
+      footer { padding: 24px 32px; }
+      .features-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
     }
 
+    /* ── Mobile: ≤768px – show hamburger ── */
+    @media (max-width: 768px) {
+      .navbar { padding: 14px 20px; }
+      .nav-links { display: none; } /* hide desktop links */
+      .hamburger { display: flex; }
+      .section { padding: 72px 20px; }
+      .stats-section { padding: 50px 20px; }
+      .stats-inner {
+        padding: 36px 20px;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .stat-divider { display: none !important; }
+      .cta-section { padding: 72px 20px; }
+      .cta-inner { padding: 48px 24px; }
+      footer {
+        padding: 24px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .steps-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+      .steps-row::before { display: none; }
+      .hero { padding: 100px 20px 64px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card { padding: 28px 24px; }
+    }
 
+    /* ── Small Mobile: ≤480px ── */
     @media (max-width: 480px) {
+      .hero { padding: 96px 16px 56px; }
       .hero-cta { flex-direction: column; align-items: center; }
       .btn-hero-primary, .btn-hero-secondary { width: 100%; max-width: 320px; justify-content: center; }
+      .stats-inner { grid-template-columns: 1fr; }
+      .steps-row { grid-template-columns: 1fr; }
+      .cta-inner { padding: 40px 18px; }
+      .section { padding: 60px 16px; }
+      .stats-section { padding: 40px 16px; }
+      .stats-section { padding: 40px 16px; }
+      footer { padding: 20px 16px; }
+      .hero-badge { font-size: 0.72rem; padding: 5px 14px; }
+      .hero-scroll { margin-top: 48px; }
     }
 
     /* ── Cinematic Intro Overlay ── */
@@ -967,7 +1061,17 @@ def secure_submit(file):
       <a href="/login" class="btn btn-ghost" id="nav-login">Log In</a>
       <a href="/signup" class="btn btn-primary" id="nav-signup">Sign Up Free</a>
     </div>
+    <!-- Hamburger (mobile only) -->
+    <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- Mobile Nav Drawer -->
+  <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+    <a href="/login" class="btn btn-ghost" onclick="closeDrawer()">Log In</a>
+    <a href="/signup" class="btn btn-primary" onclick="closeDrawer()">Sign Up Free</a>
+  </div>
 
 
   <!-- ══ HERO ══ -->
@@ -1561,6 +1665,24 @@ def secure_submit(file):
         const x = (e.clientX / window.innerWidth - 0.5) * 20;
         const y = (e.clientY / window.innerHeight - 0.5) * -20;
         heroTitle.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+      });
+    }
+
+    /* ── Hamburger / Mobile Drawer ── */
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileDrawer = document.getElementById('mobile-nav-drawer');
+
+    function closeDrawer() {
+      hamburgerBtn.classList.remove('open');
+      mobileDrawer.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (hamburgerBtn && mobileDrawer) {
+      hamburgerBtn.addEventListener('click', () => {
+        const isOpen = hamburgerBtn.classList.toggle('open');
+        mobileDrawer.classList.toggle('open', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
       });
     }
   </script>
